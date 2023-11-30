@@ -67,6 +67,7 @@ print("Threads time:", time.time() - with_threads_start)
 import pandas as pd
 import requests
 
+#Cristian, esta funcion antes la tenía de manera de que la lista la creaba ella mismo y no hacía falta darsela, pero creo que para paralelizar hay que darsela
 def extract_text(API_URL, text):
     respuesta_json = requests.get(API_URL).json()
     df1 = pd.json_normalize(respuesta_json, max_level=1)
@@ -84,6 +85,7 @@ def extract_text(API_URL, text):
 print("Running without threads:")
 without_threads_start = time.time()
 
+#con esto es con lo que tengo duda, como coño hace eso por si se tiene que poner así o podría usar un append a una lista
 with concurrent.futures.ThreadPoolExecutor() as executor:
     lista_texto_total = []
     for url in lista_limpia2:
