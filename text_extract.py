@@ -3,8 +3,6 @@
 
 import requests
 import xml.etree.ElementTree as ET
-import time
-import concurrent.futures
 import requests
 import pandas as pd
 
