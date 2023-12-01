@@ -3,7 +3,6 @@
 
 import requests
 import xml.etree.ElementTree as ET
-import requests
 import pandas as pd
 
 #Makes the initial query to get the ID of the related papers using the esearch function
