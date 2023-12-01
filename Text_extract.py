@@ -10,13 +10,12 @@ import pandas as pd
 
 #Makes the initial query to get the ID of the related papers using the esearch function
 #IN:
-# parameter: term to search for in the papers #In the future it will be a list of parameters for different options of the search
+#   parameter: term to search for in the papers #In the future it will be a list of parameters for different options of the search
 #OUT:
-# 
+#   paperUrls: list of URLs of the papers
 def buscar_url(parameter):
 
     urlEsearch = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
-
     #IMPT: Revisar estos parametros e implementar poder cambiar mas cosas
     paramsEsearch = {
         'db': 'pmc',
@@ -39,8 +38,9 @@ def buscar_url(parameter):
         # Output the IdList element and its content
         id_list_content = ET.tostring(id_list_element, encoding='unicode')
         IDs = listarIDs(id_list_content)
-        urlIDs = [f"https://www.ncbi.nlm.nih.gov/research/bionlp/RESTful/pmcoa.cgi/BioC_json/PMC{pmc_id}/ascii"for pmc_id in IDs]
-        return urlIDs
+        paperUrls = [f"https://www.ncbi.nlm.nih.gov/research/bionlp/RESTful/pmcoa.cgi/BioC_json/PMC{pmc_id}/ascii"for pmc_id in IDs]
+        return paperUrls
+
     except requests.exceptions.RequestException as e:
         print(f"Error making request: {e}")
 
