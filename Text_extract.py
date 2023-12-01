@@ -71,15 +71,16 @@ with_threads_start = time.time()
 
 buscar_url('cancer', lista_velocidad)
 with concurrent.futures.ThreadPoolExecutor() as executor:
-    lista_limpia2 = []
+    lista_limpia = []
     for url in lista_velocidad:
-        executor.submit(filtro, url, lista_limpia2)
+        executor.submit(filtro, url, lista_limpia)
 
 print("Threads time:", time.time() - with_threads_start)
 
 #Extracción de texto
-#Cristian, esta funcion antes la tenía de manera de que la lista la creaba ella mismo y no hacía falta darsela, pero creo que para paralelizar hay que darsela
-def extract_text(API_URL, text):
+
+def extract_text(API_URL):
+    text = []
     respuesta_json = requests.get(API_URL).json()
     df1 = pd.json_normalize(respuesta_json, max_level=1)
     df2 = pd.DataFrame.from_records(df1['documents'])
@@ -93,13 +94,12 @@ def extract_text(API_URL, text):
             text.append(df5['text'].item())
     return text
 
+
 print("Running without threads:")
 without_threads_start = time.time()
 
-#con esto es con lo que tengo duda, como coño hace eso por si se tiene que poner así o podría usar un append a una lista
 with concurrent.futures.ThreadPoolExecutor() as executor:
-    lista_texto_total = []
-    for url in lista_limpia2:
-        executor.submit(extract_text, url, lista_texto_total)
+    futures = [executor.submit(extract_text, url) for url in lista_limpia]
+    lista_texto_total = [future.result() for future in futures]
 
-print("Without threads time:", time.time() - without_threads_start)
+print("With threads time:", time.time() - without_threads_start)
