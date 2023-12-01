@@ -1,6 +1,7 @@
 import time
 from text_extract import *
- 
+import concurrent.futures
+
 
 #---------------------Threads--------------------------------#
 
@@ -24,4 +25,4 @@ with concurrent.futures.ThreadPoolExecutor() as executor:
     futures = [executor.submit(extract_text, url) for url in lista_limpia]
     lista_texto_total = [future.result() for future in futures]
 
-print("With threads time:", time.time() - without_threads_start)
+print("Without threads time:", time.time() - without_threads_start)

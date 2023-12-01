@@ -7,24 +7,40 @@ import pandas as pd
 
 #Makes the initial query to get the ID of the related papers using the esearch function
 #IN:
-#   parameter: term to search for in the papers #In the future it will be a list of parameters for different options of the search
+#   String/List term: term/terms to search for in the papers #In the future it will be a list of parameters for different options of the search 
+#   database
+#   nOfPapers
+#   field
+#   publishDate
 #OUT:
-#   paperUrls: list of URLs of the papers
-def buscar_url(parameter):
+#   paperUrls: list of URLs of the papers selected according to the parameters
+def buscar_url(term,database="pmc",nOfPapers=1000,field="mesh",publishDate=None):
+    base = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
 
-    urlEsearch = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
-    #IMPT: Revisar estos parametros e implementar poder cambiar mas cosas
+    #Parses the term/terms to apply the selected field
+    if isinstance(term, str):
+        termParsed = (f"{term}[{field}]")
+    elif isinstance(term, list):
+        termParsed = (f"{term.pop(0)}[{field}]")
+        if len(term) >= 1:      
+            for t in term:
+                termParsed += (f"+AND+{t}[{field}]")
+    else:
+        raise ValueError(f"{type(term)} is an unsupported type for term")
+    
+    #Handles the case where publishDate is given
+    if publishDate != None:
+        termParsed += (f"+AND+{publishDate}[pdat]")
+
+    print(termParsed)
     paramsEsearch = {
-        'db': 'pmc',
-        'retmax' : 1000 ,
-        'term': parameter, # term=parameter
-        'field': 'abstract',
-        'field': 'title'
+        'db': database,
+        'retmax' : nOfPapers ,
+        'term': termParsed,
     }
 
     try:
-        response = requests.get(urlEsearch, params=paramsEsearch)
-        response.raise_for_status() #Error control
+        response = requests.get(base, params=paramsEsearch)
 
         # Parse the XML response
         xmlEsearch = ET.fromstring(response.content)
@@ -37,7 +53,7 @@ def buscar_url(parameter):
         IDs = listarIDs(id_list_content)
         paperUrls = [f"https://www.ncbi.nlm.nih.gov/research/bionlp/RESTful/pmcoa.cgi/BioC_json/PMC{pmc_id}/ascii"for pmc_id in IDs]
         return paperUrls
-
+        
     except requests.exceptions.RequestException as e:
         print(f"Error making request: {e}")
 
