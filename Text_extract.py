@@ -8,25 +8,17 @@ import concurrent.futures
 import requests
 import pandas as pd
 
+#Makes the initial query to get the ID of the related papers using the esearch function
+#IN:
+# parameter: term to search for in the papers #In the future it will be a list of parameters for different options of the search
+#OUT:
+# 
+def buscar_url(parameter):
 
-def listarIDs(list_content):
-    try:
-        root = ET.fromstring(list_content)
-        id_elements = root.findall(".//Id")
-
-        # Extract and return the ids as an array
-        IDs = [id_element.text for id_element in id_elements]
-        return IDs
-
-    except ET.ParseError as e:
-        print(f"Error parsing XML: {e}")
-        return []
-
-def buscar_url(parameter, lista):
-    #Makes the initial query to get the ID of the related papers using the esearch function
     urlEsearch = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
+
+    #IMPT: Revisar estos parametros e implementar poder cambiar mas cosas
     paramsEsearch = {
-        #Others params such as date, or authors goes here
         'db': 'pmc',
         'retmax' : 1000 ,
         'term': parameter, # term=parameter
@@ -48,38 +40,41 @@ def buscar_url(parameter, lista):
         id_list_content = ET.tostring(id_list_element, encoding='unicode')
         IDs = listarIDs(id_list_content)
         urlIDs = [f"https://www.ncbi.nlm.nih.gov/research/bionlp/RESTful/pmcoa.cgi/BioC_json/PMC{pmc_id}/ascii"for pmc_id in IDs]
-        i = 0
-        for url in urlIDs:
-            print(i, url)
-            i += 1
-            lista.append(url)
+        return urlIDs
     except requests.exceptions.RequestException as e:
         print(f"Error making request: {e}")
 
-# Aplicación de un filtro para las url funcionales y paralelización
 
+#Get the IDs of the given esearch response
+#IN:
+#   list_content: the API's json response to a esearch query by the parameters given
+#OUT:
+#   IDs: list of IDs of the papers we requested
+def listarIDs(list_content):
+    try:
+        root = ET.fromstring(list_content)
+        id_elements = root.findall(".//Id")
+        # Extract and return the ids as an array
+        IDs = [id_element.text for id_element in id_elements]
+        return IDs
+
+    except ET.ParseError as e:
+        print(f"Error parsing XML: {e}")
+        return []
+
+        
+
+
+# Aplicación de un filtro para las url funcionales y paralelización
+#A comentar esta funcion, como las otras con IN/OUT, te lo dejo a ti que las entiendes mejor que yo
 def filtro(url, lista_limpia):
     respuesta = requests.get(url)
     if respuesta.ok:
         lista_limpia.append(url)
     return lista_limpia
 
-
-lista_velocidad = []
- 
-print("Running with threads:")
-with_threads_start = time.time()
-
-buscar_url('cancer', lista_velocidad)
-with concurrent.futures.ThreadPoolExecutor() as executor:
-    lista_limpia = []
-    for url in lista_velocidad:
-        executor.submit(filtro, url, lista_limpia)
-
-print("Threads time:", time.time() - with_threads_start)
-
 #Extracción de texto
-
+#A comentar esta funcion, como las otras con IN/OUT, te lo dejo a ti que las entiendes mejor que yo
 def extract_text(API_URL):
     text = []
     respuesta_json = requests.get(API_URL).json()
@@ -96,11 +91,3 @@ def extract_text(API_URL):
     return text
 
 
-print("Running without threads:")
-without_threads_start = time.time()
-
-with concurrent.futures.ThreadPoolExecutor() as executor:
-    futures = [executor.submit(extract_text, url) for url in lista_limpia]
-    lista_texto_total = [future.result() for future in futures]
-
-print("With threads time:", time.time() - without_threads_start)
