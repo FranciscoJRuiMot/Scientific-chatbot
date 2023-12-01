@@ -3,6 +3,23 @@
 
 import requests
 import xml.etree.ElementTree as ET
+import time
+import concurrent.futures
+import pandas as pd
+import requests
+
+def listarIDs(list_content):
+    try:
+        root = ET.fromstring(list_content)
+        id_elements = root.findall(".//Id")
+
+        # Extract and return the ids as an array
+        IDs = [id_element.text for id_element in id_elements]
+        return IDs
+
+    except ET.ParseError as e:
+        print(f"Error parsing XML: {e}")
+        return []
 
 def buscar_url(parameter, lista):
     #Makes the initial query to get the ID of the related papers using the esearch function
@@ -46,12 +63,10 @@ def filtro(url, lista_limpia):
         lista_limpia.append(url)
     return lista_limpia
 
-import time
-import concurrent.futures
 
 lista_velocidad = []
  
-print("Running without threads:")
+print("Running with threads:")
 with_threads_start = time.time()
 
 buscar_url('cancer', lista_velocidad)
@@ -63,10 +78,6 @@ with concurrent.futures.ThreadPoolExecutor() as executor:
 print("Threads time:", time.time() - with_threads_start)
 
 #Extracción de texto
-
-import pandas as pd
-import requests
-
 #Cristian, esta funcion antes la tenía de manera de que la lista la creaba ella mismo y no hacía falta darsela, pero creo que para paralelizar hay que darsela
 def extract_text(API_URL, text):
     respuesta_json = requests.get(API_URL).json()
