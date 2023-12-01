@@ -5,8 +5,9 @@ import requests
 import xml.etree.ElementTree as ET
 import time
 import concurrent.futures
-import pandas as pd
 import requests
+import pandas as pd
+
 
 def listarIDs(list_content):
     try:
