@@ -2,7 +2,6 @@ import time
 from text_extract import *
 import concurrent.futures
 
-"""
 #---------------------Threads--------------------------------#
 
 print("Running with threads:")
@@ -26,5 +25,3 @@ with concurrent.futures.ThreadPoolExecutor() as executor:
     lista_texto_total = [future.result() for future in futures]
 
 print("Without threads time:", time.time() - without_threads_start)
-"""
-print(buscar_url(["cancer","tobacco"]))
