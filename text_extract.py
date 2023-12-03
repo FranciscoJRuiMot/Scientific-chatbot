@@ -32,22 +32,17 @@ def buscar_url(term,database="pmc",nOfPapers=1000,field="mesh",publishDate=None)
     if publishDate != None:
         termParsed += (f"+AND+{publishDate}[pdat]")
 
-    print(termParsed)
-    paramsEsearch = {
-        'db': database,
-        'retmax' : nOfPapers ,
-        'term': termParsed,
-    }
+    urlSearch = f"{base}?db={database}&retmax={nOfPapers}&term={termParsed}"
 
     try:
-        response = requests.get(base, params=paramsEsearch)
+        response = requests.get(urlSearch)
 
         # Parse the XML response
         xmlEsearch = ET.fromstring(response.content)
 
         # Get the IdList field
         id_list_element = xmlEsearch.find(".//IdList")
-
+        
         # Output the IdList element and its content
         id_list_content = ET.tostring(id_list_element, encoding='unicode')
         IDs = listarIDs(id_list_content)
