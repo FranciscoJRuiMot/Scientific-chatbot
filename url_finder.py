@@ -3,7 +3,6 @@
 
 import requests
 import xml.etree.ElementTree as ET
-import pandas as pd
 
 #Makes the initial query to get the ID of the related papers using the esearch function
 #IN:
@@ -71,31 +70,3 @@ def listarIDs(list_content):
         return []
 
         
-
-
-# Aplicación de un filtro para las url funcionales y paralelización
-#A comentar esta funcion, como las otras con IN/OUT, te lo dejo a ti que las entiendes mejor que yo
-def filtro(url, lista_limpia):
-    respuesta = requests.get(url)
-    if respuesta.ok:
-        lista_limpia.append(url)
-    return lista_limpia
-
-#Extracción de texto
-#A comentar esta funcion, como las otras con IN/OUT, te lo dejo a ti que las entiendes mejor que yo
-def extract_text(API_URL):
-    text = []
-    respuesta_json = requests.get(API_URL).json()
-    df1 = pd.json_normalize(respuesta_json, max_level=1)
-    df2 = pd.DataFrame.from_records(df1['documents'])
-    df3 = pd.DataFrame.from_records(df2[0])
-    df4 = pd.DataFrame.from_records(df3['passages'])
-    for i in range(0,df4.size):
-        df5 = pd.DataFrame.from_records(df4[i])
-        df5_info = pd.DataFrame.from_records(df5['infons'])
-        if ((df5_info['section_type'] == 'TITLE') | (df5_info['section_type'] == 'ABSTRACT') | (df5_info['section_type'] == 'INTRO') | (df5_info['section_type'] == 'CONCL')).any():
-            df5=df5.convert_dtypes()
-            text.append(df5['text'].item())
-    return text
-
-

@@ -1,27 +1,17 @@
-import time
-from text_extract import *
+from url_filter import *
+from text_extractor import *
 import concurrent.futures
 
-#---------------------Threads--------------------------------#
-
-print("Running with threads:")
-with_threads_start = time.time()
-
-lista_velocidad = buscar_url('cancer')
-with concurrent.futures.ThreadPoolExecutor() as executor:
-    lista_limpia = []
-    for url in lista_velocidad:
-        executor.submit(filtro, url, lista_limpia)
-
-print("Threads time:", time.time() - with_threads_start)
-
-#---------------------Threadsless----------------------------#
-
-print("Running without threads:")
-without_threads_start = time.time()
+#filtering url
 
 with concurrent.futures.ThreadPoolExecutor() as executor:
-    futures = [executor.submit(extract_text, url) for url in lista_limpia]
-    lista_texto_total = [future.result() for future in futures]
+    filtered_urls_list = []
+    for url in key_urls:
+        executor.submit(url_filter, url, filtered_urls_list)
 
-print("Without threads time:", time.time() - without_threads_start)
+#extracting text from papers
+
+with concurrent.futures.ThreadPoolExecutor() as executor:
+    extracted_main_text = []
+    futures = [executor.submit(extract_text, url) for url in filtered_urls_list]
+    extracted_main_text = [future.result() for future in futures]
