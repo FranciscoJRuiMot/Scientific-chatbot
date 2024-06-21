@@ -5,7 +5,7 @@ from question_function import *
 import concurrent.futures
 
 #user input of the key words
-question = input()
+question = str(input())
 filtered_key_words = []
 key_words = keys_from_question(question)
 print("[BOT] Select the key words of your question, with the position they are in starting in 0, separated by a comma:")

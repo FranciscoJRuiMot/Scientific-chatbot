@@ -4,8 +4,7 @@ from deep_translator import GoogleTranslator
 from nltk import word_tokenize
 from nltk.corpus import stopwords
 
-def keys_from_question():
-    question = str(input())
+def keys_from_question(question):
     tokens = word_tokenize(question)
     stop_words = stopwords.words('spanish')
     words = [word for word in tokens if word.isalpha()]
