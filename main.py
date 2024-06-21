@@ -5,16 +5,9 @@ from question_function import *
 import concurrent.futures
 
 #user input of the key words
-question = str(input())
-filtered_key_words = []
-key_words = keys_from_question(question)
-print("[BOT] Select the key words of your question, with the position they are in starting in 0, separated by a comma:")
-print("[BOT]", key_words)
-positions = input()
-position_splitted = positions.split(",")
-for p in position_splitted:
-    filtered_key_words.append(key_words[int(p)])
-print("[BOT]", filtered_key_words)
+question = str(input("Please enter your question: "))
+filtered_key_words = keys_from_question(question)
+print("[BOT] Selected Keywords:", filtered_key_words)
 key_urls = buscar_url(filtered_key_words)
 
 #filtering url
